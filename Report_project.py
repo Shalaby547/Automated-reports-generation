@@ -6,6 +6,7 @@ from pptx.dml.color import RGBColor
 from pptx.util import Inches
 import os
 from pptx.dml.color import RGBColor
+from pathlib import Path
 
 class Colors:
 
@@ -22,12 +23,6 @@ class Colors:
     VERY_GOOD_WORD  = RGBColor(76, 175, 80)    # #4CAF50
     GOOD_WORD  = RGBColor(110, 180, 126)  # #81C784
 
-width_map = {
-    "Very Good": Cm(3),
-    "Good": Cm(2.0),
-    "Not Submitted": Cm(4),
-    "Needs Improvement": Cm(4.5),
-}
 templates = {
     (1, False): "Template1Q.pptx",
     (2, False): "Template2Q.pptx",
@@ -40,7 +35,18 @@ templates = {
     (4, True): "Template4QME.pptx"
 }
 
+class ReportConfig:
+     folder_path= Path(r'D:\Bassant')
+     def __init__(self):
+          self.File_name= input("Enter file name: ")
+          self.Excel_path= self.folder_path/ self.File_name/f"{self.File_name}.xlsx"
+          self.Output_folder=self.folder_path/self.File_name/f"{self.File_name}Reports"
+     
 
+
+     
+     
+   
 File= input("Enter file name : ")
 Quiz_count= int(input("Enter Quiaz Nomber: "))
 has_monthly_exam = input("Monthly exam true or false: ").lower() == "true"
@@ -65,7 +71,6 @@ monthly_location,performance_location= performance_monthly_location_determinatio
 File_name= str(File)
 File_report= File_name + " Reports"
 template_name = templates[(Quiz_count, has_monthly_exam)]
-
 excel_path = fr"D:\Bassant\{File_name}\{File_name}.xlsx"
 template_path = fr"D:\Bassant\Templates\{template_name}"
 output_folder = fr"D:\Bassant\{File_name}\{File_report}"
@@ -140,21 +145,20 @@ for col in range(3, ws.max_column + 1):
              quizzes.append(value)
              
 
-        # Monthly Exam 
+        # Fixed attributes
     monthly_exam = ws.cell(monthly_location, col).value
     overall_performance = ws.cell(performance_location, col).value
-
-    print("Attendance:", attendance)
-    print("Homework :", homework)
-    print(" quizzes degrees :", quizzes)
-    print("Exam     :", monthly_exam)
+    Attendance_rate  = ws.cell(43,col).value
+    Homework_average  = ws.cell(45,col).value
 
     students[student_name] = {
         "attendance": attendance,
         "homework": homework,
         "quizzes":quizzes,
         "monthly_exam": monthly_exam,
-        "overall_performance": overall_performance
+        "overall_performance": overall_performance,
+        "Attendance_rate": Attendance_rate,
+        "Homework_average": Homework_average
     }
 
     print("-----------------------")
@@ -173,7 +177,11 @@ for student, data in students.items():
         "Studentname": student,
         "ME": str(data["monthly_exam"])+"%",
         "GRADE": str(data["overall_performance"]),
-        "period": month
+        "period": month,
+        "AR":Attendance_rate,
+        "HV":Homework_average,
+        "NS":session_nomber
+
         #"ME": f'{data["monthly_exam"]:.0%}',
     }
     # Quizzes placeholders
@@ -199,10 +207,6 @@ for student, data in students.items():
     
 
     # ======================
-    # Replace in slides
-    # ======================
-
-        # ======================
     # Replace in slides
     # ======================
 
@@ -234,10 +238,9 @@ for student, data in students.items():
                     if paragraph.runs:
 
                         run = paragraph.runs[0]
-
-                        run.font.size = Pt(32)
+                        run.font.size = Pt(18)
                         run.font.bold = True
-
+                        run.font.centre()
                         # اللون الوردي الموجود في الصورة
                         run.font.color.rgb = RGBColor(212, 76, 152)
   #صفات الخط في التقييم النهائي 
@@ -272,8 +275,6 @@ for student, data in students.items():
                     font = p.runs[0].font
                     font.bold = True
                     font.size = Pt(20)
-
-    # ==========================
 
                 # -------------------------
             # Tables
